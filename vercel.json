@@ -2,31 +2,22 @@
     "version": 2,
     "builds": [
         {
-            "src": "main.py",
-            "use": "@vercel/python",
-            "config": {
-                "maxLambdaSize": "15mb",
-                "runtime": "python3.9",
-                "handler": "main.app"
-            }
+            "src": "api/index.py",
+            "use": "@vercel/python"
         },
         {
-            "src": "static/**",
+            "src": "index.html",
             "use": "@vercel/static"
         }
     ],
     "routes": [
         {
-            "src": "/static/(.*)",
-            "dest": "/static/$1"
+            "src": "/api/(.*)",
+            "dest": "api/index.py"
         },
         {
             "src": "/(.*)",
-            "dest": "main.py"
+            "dest": "index.html"
         }
-    ],
-    "env": {
-        "PYTHONPATH": ".",
-        "MAX_BODY_SIZE": "100mb"
-    }
+    ]
 } 
