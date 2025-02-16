@@ -75,41 +75,41 @@ async def get_video_info(url: str):
 @app.post("/api/download")
 async def download_video(url: str, format_id: str = None):
     try:
-        with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as tmp_file:
-            ydl_opts = {
-                'format': format_id if format_id else 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                'outtmpl': tmp_file.name,
-                'merge_output_format': 'mp4',
-                'nocheckcertificate': True,
-                'quiet': True,
+        ydl_opts = {
+            'format': format_id if format_id else 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            'nocheckcertificate': True,
+            'quiet': True,
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            title = info.get('title', 'video')
+            
+            # Get the download URL
+            formats = info.get('formats', [])
+            download_url = None
+            
+            if format_id:
+                for f in formats:
+                    if f.get('format_id') == format_id:
+                        download_url = f.get('url')
+                        break
+            else:
+                # Get the best quality format URL
+                for f in reversed(formats):
+                    if f.get('ext') == 'mp4' and f.get('vcodec') != 'none':
+                        download_url = f.get('url')
+                        break
+            
+            if not download_url:
+                raise HTTPException(status_code=400, detail="No suitable format found")
+            
+            return {
+                "success": True,
+                "title": title,
+                "download_url": download_url
             }
             
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                title = info.get('title', 'video')
-                
-                # Get the download URL instead of saving the file
-                formats = info.get('formats', [])
-                download_url = None
-                
-                if format_id:
-                    for f in formats:
-                        if f.get('format_id') == format_id:
-                            download_url = f.get('url')
-                            break
-                else:
-                    # Get the best quality format URL
-                    for f in reversed(formats):
-                        if f.get('ext') == 'mp4' and f.get('vcodec') != 'none':
-                            download_url = f.get('url')
-                            break
-                
-                return {
-                    "success": True,
-                    "title": title,
-                    "download_url": download_url
-                }
-                
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
