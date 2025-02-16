@@ -1,0 +1,13 @@
+[Unit]
+Description=YouTube Downloader FastAPI Application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/youtube-downloader
+Environment="PATH=/var/www/youtube-downloader/venv/bin"
+ExecStart=/var/www/youtube-downloader/venv/bin/python main.py
+
+[Install]
+WantedBy=multi-user.target 
