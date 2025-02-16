@@ -73,6 +73,7 @@ async def extract_info_with_fallback(url: str, download=False):
     for proxy in PROXY_LIST:
         try:
             ydl_opts = get_ydl_opts(proxy)
+            ydl_opts['cookiefile'] = str(COOKIES_FILE)  # Use cookies
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 return ydl.extract_info(url, download=download)
         except Exception as e:
@@ -82,6 +83,7 @@ async def extract_info_with_fallback(url: str, download=False):
     # If all proxies failed, try with mobile format
     try:
         ydl_opts = get_ydl_opts(None)
+        ydl_opts['cookiefile'] = str(COOKIES_FILE)  # Use cookies
         ydl_opts['format'] = 'best[ext=mp4]/best'  # Simpler format for mobile
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             return ydl.extract_info(url, download=download)
