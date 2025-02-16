@@ -4,9 +4,17 @@
         {
             "src": "main.py",
             "use": "@vercel/python"
+        },
+        {
+            "src": "static/**",
+            "use": "@vercel/static"
         }
     ],
     "routes": [
+        {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+        },
         {
             "src": "/(.*)",
             "dest": "main.py"
@@ -15,5 +23,11 @@
     "env": {
         "PYTHONPATH": ".",
         "MAX_BODY_SIZE": "100mb"
+    },
+    "functions": {
+        "api/**/*.py": {
+            "memory": 1024,
+            "maxDuration": 60
+        }
     }
 } 
